@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid()) @db.Uuid()
+  name          String        @db.VarChar(255)
+  email         String        @unique @db.VarChar(255)
+  password      String        @db.VarChar(255)
+  accountStatus AccountStatus @map("account_status")
+  isActive      Boolean       @default(true) @map("is_active")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
+  roleId        String        @map("role_id") @db.Uuid()
+  role          Role          @relation(fields: [roleId], references: [id])
+
+  @@index([name, email])
+  @@map("users")
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+model Role {
+  id         String       @id @default(uuid()) @db.Uuid()
+  name       String       @db.VarChar(255)
+  createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt  DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+  users      User[]
+  permissions Permission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id        String   @id @default(uuid()) @db.Uuid()
+  action    String   @db.VarChar(200)
+  subject   String   @db.VarChar(200)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  roleId    String   @map("role_id") @db.Uuid()
+  role      Role     @relation(fields: [roleId], references: [id])
+
+  @@unique([action, subject, roleId]) // Prevent duplicate permissions for a role
+  @@map("permissions")
+}
