@@ -58,11 +58,11 @@ export class AppService {
       this.logger.log('Role created successfully');
 
       const permissions = [
-        { action: 'create', subject: 'dashboard' },
-        { action: 'view', subject: 'dashboard' },
-        { action: 'edit', subject: 'dashboard' },
-        { action: 'delete', subject: 'dashboard' },
-        { action: 'upload_image', subject: 'dashboard' },
+        { action: 'create', subject: 'user' },
+        { action: 'view', subject: 'user' },
+        { action: 'update', subject: 'user' },
+        { action: 'delete', subject: 'user' },
+        { action: 'upload_image', subject: 'user' },
         //... add more permissions as you needed
       ];
 
