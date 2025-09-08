@@ -13,7 +13,7 @@ export const jwtConstants = {
   ),
   accessTokenExpiresIn: configService.get<string>(
     'JWT_ACCESS_TOKEN_EXPIRES_IN',
-    '1m',
+    '5m',
   ),
   refreshTokenExpiresIn: configService.get<string>(
     'JWT_REFRESH_TOKEN_EXPIRES_IN',
@@ -28,12 +28,12 @@ export const cookieConstants = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict' as const,
-    maxAge: 60 * 1000, // 1m in milliseconds
+    maxAge: 5 * 60 * 1000, // 5m in milliseconds
   },
   refreshTokenOptions: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict' as const,
-    maxAge: 15 * 60 * 1000, // 15d in milliseconds
+    maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days in milliseconds
   },
 };
