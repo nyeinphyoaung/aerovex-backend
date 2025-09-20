@@ -8,7 +8,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Permissions } from 'src/auth/decorators/permissions.decorator';
 import { RoleResponseDto } from './dtos/role-response.dto';
 import { RoleService } from './role.service';
@@ -17,6 +17,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from 'src/auth/guards/permissions.guard';
 import { UpdateRoleDto } from './dtos/update-role.dto';
 
+@ApiTags('Roles')
 @Controller('roles')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class RoleController {
