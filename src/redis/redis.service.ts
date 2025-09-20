@@ -47,4 +47,29 @@ export class RedisService implements OnModuleDestroy {
   async expire(key: string, ttl: number): Promise<number> {
     return this.redisClient.expire(key, ttl);
   }
+
+  async invalidateCache(cachePrefix: string) {
+    try {
+      const keys = await this.redisClient.keys(`${cachePrefix}:*`);
+      if (keys.length > 0) {
+        await this.redisClient.del(...keys);
+        this.logger.log(
+          `Invalidated ${keys.length} cache keys with prefix ${cachePrefix}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error('Error invalidating cache', error);
+      throw error;
+    }
+  }
+
+  async checkRedisHealth() {
+    try {
+      await this.redisClient.ping();
+      return true;
+    } catch (error) {
+      this.logger.error('Redis client is not healthy', error);
+      return false;
+    }
+  }
 }
