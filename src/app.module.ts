@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { RoleModule } from './role/role.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RoleModule } from './role/role.module';
     PrismaModule,
     AuthModule,
     RoleModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
