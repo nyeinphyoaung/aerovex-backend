@@ -9,6 +9,8 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { RoleModule } from './role/role.module';
 import { RedisModule } from './redis/redis.module';
 import { UploadModule } from './upload/upload.module';
+import { ExternalServiceModule } from './external-service/external-service.module';
+import { QueuesModule } from './queues/queues.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { UploadModule } from './upload/upload.module';
     RoleModule,
     RedisModule,
     UploadModule,
+    ExternalServiceModule,
+    QueuesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

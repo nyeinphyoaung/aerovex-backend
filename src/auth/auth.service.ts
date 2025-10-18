@@ -9,6 +9,7 @@ import { RefreshResponseDto } from './dtos/refresh-response.dto';
 import { JwtUser } from './decorators/current-user.decorator';
 import { LogoutResponseDto } from './dtos/logout-response.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { EmailPohService } from 'src/external-service/email-poh';
 
 @ApiTags('Auth')
 @Injectable()
@@ -16,6 +17,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly emailPohService: EmailPohService,
   ) {}
 
   async login(
@@ -56,6 +58,20 @@ export class AuthService {
       refreshToken,
       cookieConstants.refreshTokenOptions,
     );
+
+    try {
+      await this.emailPohService.welcomeEmail({
+        to: user.email,
+        name: user.name,
+        verificationUrl: `${process.env.AEROVEX_FRONTEND_URL}/verify-email`,
+      });
+      Logger.log(`Login notification email sent to ${user.email}`);
+    } catch (error) {
+      Logger.error(
+        `Failed to send login notification email to ${user.email}:`,
+        error,
+      );
+    }
 
     return {
       success: true,
