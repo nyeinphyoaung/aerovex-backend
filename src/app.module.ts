@@ -11,12 +11,15 @@ import { RedisModule } from './redis/redis.module';
 import { UploadModule } from './upload/upload.module';
 import { ExternalServiceModule } from './external-service/external-service.module';
 import { QueuesModule } from './queues/queues.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronService } from './cron/cron.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     UserModule,
     PrismaModule,
     AuthModule,
@@ -27,7 +30,7 @@ import { QueuesModule } from './queues/queues.module';
     QueuesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, CronService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
