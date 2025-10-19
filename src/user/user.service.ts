@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -9,6 +10,8 @@ import { plainToInstance } from 'class-transformer';
 import { CreateUserDto } from './dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { BulkDeleteUserDto } from './dtos/bulk-delete-user.dto';
+import { BulkRestoreUserDto } from './dtos/bulk-restore-user.dto';
 
 @Injectable()
 export class UserService {
@@ -130,5 +133,73 @@ export class UserService {
       ...result,
       users,
     };
+  }
+
+  async softDeleteUser(id: string): Promise<UserDto> {
+    const user = await this.userRepository.findUserById(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    const deletedUser = await this.userRepository.softDeleteUser(id);
+    return plainToInstance(UserDto, deletedUser, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async restoreUser(id: string): Promise<UserDto> {
+    const user = await this.userRepository.findSoftDeletedUserById(id);
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    const restoredUser = await this.userRepository.restoreUser(id);
+    return plainToInstance(UserDto, restoredUser, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async bulkSoftDeleteUsers(
+    payload: BulkDeleteUserDto,
+  ): Promise<{ success: boolean; message: string }> {
+    if (payload.ids.length === 0) {
+      throw new BadRequestException('Ids are required');
+    }
+
+    const users = await this.userRepository.findUsersByIds(payload.ids);
+    const foundIds = new Set(users.map((user) => user.id));
+    const missingIds = payload.ids.filter((id) => !foundIds.has(id));
+
+    if (missingIds.length > 0) {
+      throw new NotFoundException(
+        `Users not found for ids: ${missingIds.join(', ')}`,
+      );
+    }
+
+    await this.userRepository.bulkSoftDeleteUsers(payload.ids);
+    return { success: true, message: 'Users bulk soft deleted successfully' };
+  }
+
+  async bulkRestoreUsers(
+    payload: BulkRestoreUserDto,
+  ): Promise<{ success: boolean; message: string }> {
+    if (payload.ids.length === 0) {
+      throw new BadRequestException('Ids are required');
+    }
+
+    const users = await this.userRepository.findSoftDeletedUsersByIds(
+      payload.ids,
+    );
+    const foundIds = new Set(users.map((user) => user.id));
+    const missingIds = payload.ids.filter((id) => !foundIds.has(id));
+
+    if (missingIds.length > 0) {
+      throw new NotFoundException(
+        `Users not found for ids: ${missingIds.join(', ')}`,
+      );
+    }
+
+    await this.userRepository.bulkRestoreUsers(payload.ids);
+    return { success: true, message: 'Users bulk restored successfully' };
   }
 }
