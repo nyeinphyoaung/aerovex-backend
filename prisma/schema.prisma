@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  // Custom output path for generated Prisma client
   output   = "../generated/prisma"
 }
 
@@ -21,8 +22,10 @@ model User {
   password      String        @db.VarChar(255)
   accountStatus AccountStatus @map("account_status")
   isActive      Boolean       @default(true) @map("is_active")
+  isVerified    Boolean       @default(false) @map("is_verified")
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt     DateTime?     @map("deleted_at") @db.Timestamp(6)
   roleId        String        @map("role_id") @db.Uuid()
   role          Role          @relation(fields: [roleId], references: [id])
 
@@ -41,6 +44,7 @@ model Role {
   name       String       @db.VarChar(255)
   createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt  DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt  DateTime?    @map("deleted_at") @db.Timestamp(6)
   users      User[]
   permissions Permission[]
 
@@ -53,6 +57,7 @@ model Permission {
   subject   String   @db.VarChar(200)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamp(6)
   roleId    String   @map("role_id") @db.Uuid()
   role      Role     @relation(fields: [roleId], references: [id])
 

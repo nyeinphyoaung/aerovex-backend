@@ -23,6 +23,8 @@ import { PermissionsGuard } from 'src/auth/guards/permissions.guard';
 import { Permissions } from 'src/auth/decorators/permissions.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { BulkDeleteUserDto } from './dtos/bulk-delete-user.dto';
+import { BulkRestoreUserDto } from './dtos/bulk-restore-user.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -170,6 +172,80 @@ export class UserController {
       success: true,
       message: 'Current user fetched successfully',
       user: result,
+    };
+  }
+
+  @Delete(':id/soft-delete')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions({ action: 'delete', subject: 'user' })
+  @ApiOperation({ summary: 'Soft delete a user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User soft deleted successfully',
+    type: UserResponseDto,
+  })
+  async softDeleteUser(@Param('id') id: string): Promise<UserResponseDto> {
+    const result = await this.userService.softDeleteUser(id);
+    return {
+      success: true,
+      message: 'User soft deleted successfully',
+      user: result,
+    };
+  }
+
+  @Put(':id/restore')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions({ action: 'update', subject: 'user' })
+  @ApiOperation({ summary: 'Restore a user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User restored successfully',
+    type: UserResponseDto,
+  })
+  async restoreUser(@Param('id') id: string): Promise<UserResponseDto> {
+    const result = await this.userService.restoreUser(id);
+    return {
+      success: true,
+      message: 'User restored successfully',
+      user: result,
+    };
+  }
+
+  @Delete('bulk-soft-delete')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions({ action: 'delete', subject: 'user' })
+  @ApiOperation({ summary: 'Bulk soft delete users' })
+  @ApiResponse({
+    status: 200,
+    description: 'Users bulk soft deleted successfully',
+    type: UsersResponseDto,
+  })
+  async bulkSoftDeleteUsers(
+    @Body() payload: BulkDeleteUserDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const response = await this.userService.bulkSoftDeleteUsers(payload);
+    return {
+      success: response.success,
+      message: response.message,
+    };
+  }
+
+  @Put('bulk-restore')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @Permissions({ action: 'update', subject: 'user' })
+  @ApiOperation({ summary: 'Bulk restore users' })
+  @ApiResponse({
+    status: 200,
+    description: 'Users bulk restored successfully',
+    type: UsersResponseDto,
+  })
+  async bulkRestoreUsers(
+    @Body() payload: BulkRestoreUserDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const response = await this.userService.bulkRestoreUsers(payload);
+    return {
+      success: response.success,
+      message: response.message,
     };
   }
 }

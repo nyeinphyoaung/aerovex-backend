@@ -7,6 +7,7 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   async onModuleInit() {
+    // this.$use(softDeleteMiddleware);
     await this.$connect();
   }
 
