@@ -13,6 +13,8 @@ import { ExternalServiceModule } from './external-service/external-service.modul
 import { QueuesModule } from './queues/queues.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cron/cron.service';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,6 +22,14 @@ import { CronService } from './cron/cron.service';
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 5,
+        },
+      ],
+    }),
     UserModule,
     PrismaModule,
     AuthModule,
@@ -30,7 +40,14 @@ import { CronService } from './cron/cron.service';
     QueuesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, CronService],
+  providers: [
+    AppService,
+    CronService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
